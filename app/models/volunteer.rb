@@ -1,2 +1,0 @@
-class Volunteer < Contributor
-end

@@ -9,52 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090910044227) do
-
-  create_table "contributors", :force => true do |t|
-    t.string   "first_name"
-    t.string   "last_name"
-    t.date     "started"
-    t.string   "type"
-    t.string   "participation"
-    t.decimal  "total_amount",   :precision => 8, :scale => 2
-    t.decimal  "monthly_pledge", :precision => 8, :scale => 2
-    t.decimal  "total_hours",    :precision => 8, :scale => 2
-    t.string   "email"
-    t.string   "phone"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  create_table "paperclip_users", :force => true do |t|
-    t.string   "first_name"
-    t.string   "last_name"
-    t.string   "email"
-    t.string   "mobile"
-    t.string   "degree"
-    t.string   "status"
-    t.string   "username"
-    t.string   "password"
-    t.string   "avatar_file_name"
-    t.string   "avatar_content_type"
-    t.integer  "avatar_file_size"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  create_table "polls", :force => true do |t|
-    t.string   "name"
-    t.integer  "age"
-    t.string   "gender"
-    t.string   "q1"
-    t.string   "q2"
-    t.string   "q3"
-    t.string   "q4"
-    t.string   "phone"
-    t.string   "email"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
+ActiveRecord::Schema.define(:version => 20090818202815) do
 
   create_table "sessions", :force => true do |t|
     t.string   "session_id", :null => false

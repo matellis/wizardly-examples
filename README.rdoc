@@ -1,20 +1,18 @@
-== wizardly-examples
+== Simplified wizardly-examples illustrating issue with lockdown
 
-Examples for jeffp-wizardly gem 
+Issue affecting how lockdown interacts with stuff like wizardly
 
-http://github.com/jeffp/wizardly
+Wizardly can be found here http://github.com/jeffp/wizardly
+
+Lockdown can be found here http://stonean.com/page/lockdown
 
 == Setup
 
 clone the directory
 
-  git clone git://github.com/jeffp/wizardly-examples.git
-	
-change to the directory and install the gems
+  git clone git://github.com/matellis/wizardly-examples.git
 
-  rake gems:install
-
-build the database.  The examples currently use Sqlite3 (you'll need it installed or
+change to the directory and build the database.  The examples currently use Sqlite3 (you'll need it installed or
 change the database to your preference)
 
   rake db:create
@@ -23,66 +21,33 @@ change the database to your preference)
 start the server
 
   ./script/server 
+
+== Simplification
+
+All the examples from the original code have been removed except for simple sign up. This is to make the code a little shorter.
+
+All the relevant gems were added to the vendor folder in case one of them was the problem.	
 	
-	
-== Examples
+== The Issue
 
-=== Standard User Signup Wizard
+Go to the folder config/initializers/lockit.rb and uncomment the first and last lines. This will make Lockdown run whenever you run db:migrate. Now go and rebuild the database:
 
-* CreateUsers
-* SignupController
-* UserSignup
-* User
+  rake db:drop
+  rake db:create
+  rake db:migrate
 
-This example creates a User record from a wizard in three steps.  The steps are
-defined by 'validation_group' macros on the UserSignup model (which inherits from
-the User class).  All validation is defined in the User class.
+You will get an error message a bit like this:
 
-The SignupController class acts wizardly for UserSignup.  In addition, it defines
-four callback macros for additional processing in the wizard flow.  
+  /code/wizardly-examples(master) >rake db:drop;rake db:create; rake db:migrate
+  (in /code/wizardly-examples)
+  (in /code/wizardly-examples)
+  (in /code/wizardly-examples)
+  => Mixing in Lockdown version: 1.3.1 
+  => Requiring Lockdown rules engine: /code/wizardly-examples/lib/lockdown/init.rb 
+  rake aborted!
+  /code/wizardly-examples/vendor/gems/jeffp-wizardly-0.1.8.8/lib/wizardly/wizard/configuration.rb:67:in `create': Failed to configure wizard from UserSignup validation groups: Could not find table 'users'
+  (See full trace by running task with --trace)
 
+This is the chicken and egg: Lockdown is attempting to load the UserSignup model which relies on the Users table which isn't there yet as we haven't ran db:migrate yet.
 
-=== Wizard for STI Model
-
-* CreateContributors
-* ContributorController
-* ContributorWizard
-* Contributor
-* Donator
-* Volunteer
-
-This example demonstrates how wizardly is used to generate a wizard with two different
-paths for an STI model.  The base model is the Contributor class and both Volunteer
-and Donator inherit from the Contributor class.  To handle the wizard for the STI model, 
-a fourth class, ContributorWizard, subclasses the Contributor class and defines the 
-validation groups.  It also sets the STI inheritance_column to a non-existant column so
-that the wizard can dictate the final model based on user input.  
-
-The ConntributorController acts wizardly for the ContributorWizard model, and defines
-two routes to completion depending on whether the user chooses :volunteer or :donator
-in the :participation page.  Callback macros on_next(:participation) and on_next(:donation)
-are used to control the progression path of the wizard based on user choice.  Note the 
-progression is only managed going forward because the wizardly gem manages the correct
-backward progression (from :back buttons) based on previous forward progression.
-
-The on_finish(:finish) callback macro is called when the user finished the final page and 
-clicks the :finish button.  It sets the :type column for the STI model before the 
-record is created.
-
-=== Wizard for Resource and Image_submit tags
-
-* CreatePolls
-* PollsController
-* PollWizardController
-* Polls
-
-This example demonstrates how to replace a resource's new form with a wizard.  When
-'new poll' is clicked on th resource's index page, PollWizard controller is called.
-The PollsWizradController uses the wizard's global on_completed callback macro to
-redirect to the resource controller once the resource has been committed to the database.
-
-This example also demonstrates the wizardly_image_submit helper.
-
-=== Wizard with User Defined Buttons
-
-This example demonstrates customizing the five default buttons and adding a custom button
+I hacked a fix by only loading the lockdown code if db:migrate is not running. This causes a couple of errors but does seem to fix the issue.
